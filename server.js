@@ -17,6 +17,7 @@ const compiler = webpack({
         loader: 'babel',
         test: /\.js$/,
       },
+      { test: /\.json$/, loader: 'json-loader' }
     ],
   },
   output: {filename: 'app.js', path: '/'},

@@ -42,7 +42,8 @@ export default class Textarea extends React.Component {
 
     let json = null;
     try {
-      json = JSON.parse(value);
+      JSON.parse(value);
+      json = value;
     } catch (e) {
       this.setState({
         exception: e,
@@ -78,7 +79,7 @@ export default class Textarea extends React.Component {
         <div className="alert alert-success" role="alert">
           Success
         </div>
-        <ComposerDotJsonRenderer
+        <PackageJsonRenderer
           json={this.state.json}
         />
       </div>
@@ -93,7 +94,7 @@ export default class Textarea extends React.Component {
     return (
       <div className="alert alert-warning" role="alert">
         {this._renderException()}
-      </div>      
+      </div>
     );
   }
 

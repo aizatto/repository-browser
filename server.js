@@ -23,7 +23,7 @@ if (PRODUCTION) {
   
   app = new WebpackDevServer(compiler, {
     contentBase: '/public/',
-    publicPath: '/js/',
+    publicPath: '/build/',
     stats: {colors: true},
   });
 }

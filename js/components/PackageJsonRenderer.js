@@ -2,6 +2,7 @@
 
 import React from 'react';
 import JsonRenderer from './JsonRenderer.js';
+import clipboard from 'copy-to-clipboard';
 
 export default class PackageJsonRenderer extends JsonRenderer {
 
@@ -105,10 +106,20 @@ export default class PackageJsonRenderer extends JsonRenderer {
       return `  ${dep} ${separator}`
     }).join("\n");
 
+    const fullCommand = `${command.join(' ')} \\\n${deps}`;
+
+    const copy = (
+      <small
+        style={{ cursor: 'pointer'}}
+        onClick={() => clipboard(fullCommand)}>
+        copy
+      </small>
+    );
+
     return (
       <div>
-        <h4>{command.join(' ')}</h4>
-        <pre>{command.join(' ')}{" \\\n"}{deps}</pre>
+        <h4>{command.join(' ')}{' '}{copy}</h4>
+        <pre>{fullCommand}</pre>
       </div>
     );
   }

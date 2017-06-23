@@ -41,6 +41,8 @@ export default class PackageJsonRenderer extends JsonRenderer {
         {this.renderTable('bugs')}
         <h3>File Contents</h3>
         <pre>{this.props.json}</pre>
+        {this.renderYarnAdd()}
+        {this.renderYarnAddDev()}
       </div>
     );
   }
@@ -77,6 +79,36 @@ export default class PackageJsonRenderer extends JsonRenderer {
             {stuff}
           </tbody>
         </table>
+      </div>
+    );
+  }
+
+  renderYarnAdd() {
+    const deps = this.state.config.dependencies
+    return this.renderCommand(['yarn', 'add'], deps);
+  }
+
+  renderYarnAddDev() {
+    const deps = this.state.config.devDependencies
+    return this.renderCommand(['yarn', 'add', '--dev'], deps);
+  }
+
+  renderCommand(command, deps) {
+    if (!deps || deps.length === 0) {
+      return null;
+    }
+
+    // TODO: add flag for version numbers
+    const keys = Object.keys(deps);
+    deps = keys.map((dep, index) => {
+      const separator = index === keys.length -1 ? "\n" : "\\";
+      return `  ${dep} ${separator}`
+    }).join("\n");
+
+    return (
+      <div>
+        <h4>{command.join(' ')}</h4>
+        <pre>{command.join(' ')}{" \\\n"}{deps}</pre>
       </div>
     );
   }

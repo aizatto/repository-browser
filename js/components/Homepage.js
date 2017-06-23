@@ -16,6 +16,7 @@ export default class Homepage extends React.Component {
         <h3>Notes</h3>
         package.json:
         <ul>
+          <li><a href="https://docs.npmjs.com/files/package.json">Specifics of npm{"'"}s package.json handling</a></li>
           <li><a href="https://github.com/npm/read-package-json">read-package-json</a></li>
           <li><a href="http://browsenpm.org/package.json">package.json Interactive Guide</a></li>
         </ul>

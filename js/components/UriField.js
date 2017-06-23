@@ -36,12 +36,16 @@ export default class UriField extends React.Component {
   render() {
     return (
       <div>
+        GitHub Repo:
         <input
           ref="input"
           type="text"
           defaultValue={this.state.uri}
         />
         <input type="submit" value="submit" onClick={() => this.onChange()} />
+        <ul>
+          <li>Does not work with private repositories</li>
+        </ul>
         {this.renderExamples()}
         {this.renderSucces()}
       </div>

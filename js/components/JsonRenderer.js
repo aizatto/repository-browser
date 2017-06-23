@@ -38,20 +38,25 @@ export default class JsonRenderer extends React.Component {
     );
   }
 
-  renderTable(name, fn_key, fn_value) {
-    const values = this.state.config[name];
+  renderTable(name, fn_key, fn_value, options = {}) {
+    let values = this.state.config[name];
     if (!values) {
       return;
     }
 
-    const keys = [];
-    for (const key in values) {
+    const keys = Object.keys(values);
+    if (options.sort) {
+      keys.sort();
+    };
+
+    const rows = [];
+    for (const key of keys) {
       const value = values[key];
 
       const key2 = fn_key ? fn_key(key) : key;
       const value2 = fn_value ? fn_value(value) : value;
 
-      keys.push(
+      rows.push(
         <tr key={key}>
           <td>
             {key2}
@@ -72,7 +77,7 @@ export default class JsonRenderer extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {keys}
+            {rows}
           </tbody>
         </table>
       </div>

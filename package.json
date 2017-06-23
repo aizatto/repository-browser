@@ -5,7 +5,8 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start": "./node_modules/.bin/babel-node ./server.js"
+    "start": "./node_modules/.bin/babel-node ./server.js",
+    "heroku-postbuild": "webpack -p --config webpack.config.js"
   },
   "dependencies": {
     "axios": "^0.15.3",

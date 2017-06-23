@@ -5,7 +5,9 @@ import path from 'path';
 import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 
-const APP_PORT = 3000;
+const APP_PORT = process.env.NODE_ENV === 'production' && process.env.PORT
+  ? process.env.PORT
+  : 3000;
 
 // Serve the Relay app
 const compiler = webpack({

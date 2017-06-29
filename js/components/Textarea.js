@@ -1,8 +1,5 @@
-"use strict";
-
 import React from 'react';
-import PackageJsonRenderer from './PackageJsonRenderer.js';
-import ComposerDotJsonRenderer from './ComposerDotJsonRenderer.js';
+import PackageJsonRenderer from './PackageJsonRenderer';
 
 const State = {
   NONE: 'none',
@@ -26,16 +23,16 @@ export default class Textarea extends React.Component {
       <div>
         <h3>package.json or composer.json</h3>
         <textarea
-          ref="textarea"
-          onChange={() => this.onChange()} >
-        </textarea>
+          ref={(textarea) => { this.textarea = textarea; }}
+          onChange={() => this.onChange()}
+        />
         {this.renderState()}
       </div>
     );
   }
 
   onChange() {
-    const value = this.refs.textarea.value.trim();
+    const value = this.textarea.value.trim();
     if (value.length === 0) {
       return;
     }
@@ -56,7 +53,7 @@ export default class Textarea extends React.Component {
     this.setState({
       exception: null,
       state: State.SUCCESS,
-      json: json,
+      json,
     });
   }
 
@@ -68,8 +65,9 @@ export default class Textarea extends React.Component {
       case State.EXCEPTION:
         return this.renderException();
 
+      default:
       case State.NONE:
-        break;
+        return null;
     }
   }
 
@@ -88,20 +86,20 @@ export default class Textarea extends React.Component {
 
   renderException() {
     if (!this.state.exception) {
-      return;
+      return null;
     }
 
     return (
       <div className="alert alert-warning" role="alert">
-        {this._renderException()}
+        {this.renderStyledException()}
       </div>
     );
   }
 
-  _renderException() {
+  renderStyledException() {
     const e = this.state.exception;
 
-    if (typeof e !== "object") {
+    if (typeof e !== 'object') {
       return e;
     }
 

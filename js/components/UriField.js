@@ -1,33 +1,30 @@
-"use strict";
-
 import React from 'react';
-import PackageJsonRenderer from './PackageJsonRenderer.js';
-import ComposerDotJsonRenderer from './ComposerDotJsonRenderer.js';
-import {Tabs, Tab} from 'react-bootstrap';
+import { Tabs, Tab } from 'aizatto/lib/react/bootstrap';
+import PackageJsonRenderer from './PackageJsonRenderer';
+import ComposerDotJsonRenderer from './ComposerDotJsonRenderer';
 
 const queryString = require('query-string');
 const urlParser = require('url');
 const xhr = require('xhr');
 const HttpStatus = require('http-status-codes');
 
-const axios = require('axios');
-
 const State = {
   NONE: 'none',
   FETCHING: 'fetching',
   SUCCESS: 'success',
-}
+};
 
 export default class UriField extends React.Component {
 
   constructor(props) {
     super(props);
+    // eslint-disable-next-line no-undef
     const parsed = queryString.parse(location.search);
     this.state = {
       uri: parsed.uri,
       state: State.NONE,
       files: {},
-    }
+    };
   }
 
   componentDidMount() {
@@ -38,7 +35,7 @@ export default class UriField extends React.Component {
       <div>
         GitHub Repo:
         <input
-          ref="input"
+          ref={(input) => { this.input = input; }}
           type="text"
           defaultValue={this.state.uri}
         />
@@ -55,10 +52,10 @@ export default class UriField extends React.Component {
   renderExamples() {
     const uris = [
       'https://github.com/kobotoolbox/kpi',
-    ].map(uri => {
+    ].map((uri) => {
       const onclick = (event) => {
         event.preventDefault();
-        this.refs.input.value = uri;
+        this.input.value = uri;
         this.onChange();
       };
 
@@ -80,16 +77,16 @@ export default class UriField extends React.Component {
   }
 
   onChange() {
-    if (!this.refs.input) {
+    if (!this.input) {
       return;
     }
 
-    const uri = urlParser.parse(this.refs.input.value);
-    if (!(uri.protocol == 'http:' || uri.protocol == 'https:')) {
+    const uri = urlParser.parse(this.input.value);
+    if (!(uri.protocol === 'http:' || uri.protocol === 'https:')) {
       return;
     }
 
-    if (uri.host != 'github.com') {
+    if (uri.host !== 'github.com') {
       return;
     }
 
@@ -120,28 +117,22 @@ export default class UriField extends React.Component {
     // https://raw.githubusercontent.com/graphql/express-graphql/master/package.json
     // https://github.com/symfony/symfony/blob/master/composer.json
     //
-    const output = (body) => {
-      return <div><pre>{body}</pre></div>;
-    };
-    
+    const output = body => <div><pre>{body}</pre></div>;
+
     const files = {
-      'package.json': (body) => {
-        return (
-          <div>
-            <h2>package.json</h2>
-            <PackageJsonRenderer json={body} />
-          </div>
-        );
-      },
-      'composer.json': (body) => {
-        return (
-          <div>
-            <h2>composer.json</h2>
-            <ComposerDotJsonRenderer json={body} />
-          </div>
-        );
-      },
-      'Dockerfile': output,
+      'package.json': body => (
+        <div>
+          <h2>package.json</h2>
+          <PackageJsonRenderer json={body} />
+        </div>
+        ),
+      'composer.json': body => (
+        <div>
+          <h2>composer.json</h2>
+          <ComposerDotJsonRenderer json={body} />
+        </div>
+        ),
+      Dockerfile: output,
       '.dockerignore': output,
       '.eslintrc': output,
       '.bowerrc': output,
@@ -153,62 +144,48 @@ export default class UriField extends React.Component {
     const raw = `https://raw.githubusercontent.com/${user}/${repo}/master/`;
 
     const stateFiles = {};
-    for (const key in files) {
-      const file = key;
-      const fn = files[key];
+    Object.entries(files).forEach(([file, fn]) => {
       const fileUri = `${raw}${file}`;
       stateFiles[file] = {
-        file: file,
+        file,
         uri: fileUri,
         error: null,
         response: null,
         body: null,
-        fn: fn,
+        fn,
       };
-    }
-
+    });
 
     this.setState({
-      uri: this.refs.input.value,
+      uri: this.input.value,
       state: State.FETCHING,
       files: stateFiles,
     }, () => {
-      for (const file in files) {
+      Object.keys(files).forEach((file) => {
         const fileUri = `${raw}${file}`;
         xhr.get(fileUri, (error, response, body) => {
-          const stateFiles = this.state.files;
-          console.log(file);
-          console.log(error);
-          console.log(response);
-
-          stateFiles[file].error = error;
-          stateFiles[file].response = response;
-          stateFiles[file].body = body;
+          const sF = this.state.files;
+          sF[file].error = error;
+          sF[file].response = response;
+          sF[file].body = body;
 
           this.setStateFiles(stateFiles);
         });
-      }
+      });
     });
   }
 
   setStateFiles(stateFiles) {
-    let i = 0;
-    let total = 0;
-
     const state = {
       stateFiles,
     };
 
-    for (const file in stateFiles) {
-      total++;
+    Object.values(stateFiles).forEach((file) => {
+      total += 1;
       if (file.response || file.error) {
-        i++;
+        i += 1;
       }
-    }
-
-    if (i === total) {
-      state.state = State.NONE;
-    }
+    });
 
     this.setState(state);
   }
@@ -221,21 +198,19 @@ export default class UriField extends React.Component {
     const files = this.state.files;
 
     const html = [];
-    const tabs = [];
-    for (const key in files) {
+    const tabs = Object.keys(files).map((key) => {
       const file = files[key];
 
       let body = null;
       let status = null;
 
-      console.log(file.error);
       if (file.error) {
         const error = file.error;
         body = error.stack
           ? <pre>{error.stack}</pre>
           : error.toString();
 
-        body =(
+        body = (
           <div>
             <a href={file.url}>{file.uri}</a>
             {body}
@@ -248,7 +223,7 @@ export default class UriField extends React.Component {
           : <pre>file.body</pre>;
         status = HttpStatus.getStatusText(file.response.statusCode);
       } else {
-        body = <code>"Loading..."</code>;
+        body = <code>Loading...</code>;
         status = 'Loading';
       }
 
@@ -257,28 +232,39 @@ export default class UriField extends React.Component {
           <a href={file.url}>{file.uri}</a>
           {' '}
           {status}
-        </li>
+        </li>,
       );
 
-      tabs.push(
-        <Tab key={file.file} eventKey={file.file} title={file.file}>
-          <div>
-            <a href={file.url} target="_blank">{file.uri}</a>
-          </div>
-          {body}
-        </Tab>
+      return (
+        <Tab
+          key={file.file}
+          eventKey={file.file}
+          title={file.file}
+          render={() =>
+            (<div>
+              <div>
+                <a href={file.url} target="_blank">{file.uri}</a>
+              </div>
+              {body}
+            </div>)
+          }
+        />
       );
-    }
+    });
 
     return (
-      <Tabs defaultActiveKey={1} id="uncontrolled-tab-example">
-        <Tab eventKey={1} title="General">
-          <div>
-            <ul>
-              {html}
-            </ul>
-          </div>
-        </Tab>
+      <Tabs>
+        <Tab
+          eventKey="general"
+          title="General"
+          render={() =>
+            (<div>
+              <ul>
+                {html}
+              </ul>
+            </div>)
+          }
+        />
         {tabs}
       </Tabs>
     );

@@ -1,8 +1,6 @@
-"use strict";
-
 import React from 'react';
-import JsonRenderer from './JsonRenderer.js';
 import clipboard from 'copy-to-clipboard';
+import JsonRenderer from './JsonRenderer';
 
 export default class PackageJsonRenderer extends JsonRenderer {
 
@@ -22,11 +20,9 @@ export default class PackageJsonRenderer extends JsonRenderer {
       );
     };
 
-    const code = (value) => {
-      return (
-        <code>{value}</code>
+    const code = value => (
+      <code>{value}</code>
       );
-    };
 
     return (
       <div>
@@ -49,27 +45,23 @@ export default class PackageJsonRenderer extends JsonRenderer {
   }
 
   renderStuff() {
-    const code = (value) => {
-      return (
-        <code>{value}</code>
+    const code = value => (
+      <code>{value}</code>
       );
-    };
-    
+
     let stuff = [
       this.renderKeyStuff('name', code),
       this.renderKeyStuff('version'),
       this.renderKeyStuff('description'),
       this.renderKeyStuff('author'),
-      this.renderKeyStuff('homepage', (uri) => {
-        return <a href={uri}>{uri}</a>
-      }),
+      this.renderKeyStuff('homepage', uri => <a href={uri}>{uri}</a>),
       this.renderKeyStuff('license'),
       this.renderKeyStuff('main', code),
     ];
 
-    stuff = stuff.filter((value) => value !== null);
+    stuff = stuff.filter(value => value !== null);
     if (stuff.length === 0) {
-      return;
+      return null;
     }
 
     return (
@@ -85,15 +77,16 @@ export default class PackageJsonRenderer extends JsonRenderer {
   }
 
   renderYarnAdd() {
-    const deps = this.state.config.dependencies
+    const deps = this.state.config.dependencies;
     return this.renderCommand(['yarn', 'add'], deps);
   }
 
   renderYarnAddDev() {
-    const deps = this.state.config.devDependencies
+    const deps = this.state.config.devDependencies;
     return this.renderCommand(['yarn', 'add', '--dev'], deps);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderCommand(command, deps) {
     if (!deps || deps.length === 0) {
       return null;
@@ -101,17 +94,20 @@ export default class PackageJsonRenderer extends JsonRenderer {
 
     // TODO: add flag for version numbers
     const keys = Object.keys(deps);
-    deps = keys.map((dep, index) => {
-      const separator = index === keys.length -1 ? "\n" : "\\";
-      return `  ${dep} ${separator}`
-    }).join("\n");
+    const depString = keys.map((dep, index) => {
+      const separator = index === keys.length - 1 ? '\n' : '\\';
+      return `  ${dep} ${separator}`;
+    }).join('\n');
 
-    const fullCommand = `${command.join(' ')} \\\n${deps}`;
+    const fullCommand = `${command.join(' ')} \\\n${depString}`;
 
     const copy = (
       <small
-        style={{ cursor: 'pointer'}}
-        onClick={() => clipboard(fullCommand)}>
+        style={{ cursor: 'pointer' }}
+        onClick={() => clipboard(fullCommand)}
+        role="button"
+        tabIndex="-1"
+      >
         copy
       </small>
     );

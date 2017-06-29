@@ -6,9 +6,12 @@
   "license": "ISC",
   "scripts": {
     "start": "./node_modules/.bin/babel-node ./server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "heroku-postbuild": "webpack -p --config webpack.config.js"
   },
   "dependencies": {
+    "aizatto": "git+ssh://git@github.com:aizatto/nodejs.git",
     "axios": "^0.15.3",
     "babel-cli": "^6.22.2",
     "babel-core": "^6.22.1",
@@ -20,6 +23,7 @@
     "babel-preset-stage-0": "^6.22.0",
     "babel-runtime": "^6.22.0",
     "copy-to-clipboard": "^3.0.6",
+    "express": "^4.15.3",
     "http-status-codes": "^1.1.6",
     "query-string": "^4.3.1",
     "react": "^15.4.2",
@@ -32,6 +36,12 @@
     "xhr": "^2.3.3"
   },
   "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^15.0.1",
+    "eslint-plugin-import": "^2.6.0",
+    "eslint-plugin-jsx-a11y": "^5.1.0",
+    "eslint-plugin-react": "^7.1.0",
     "json-loader": "^0.5.4"
   },
   "engines": {

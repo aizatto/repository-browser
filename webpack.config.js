@@ -22,15 +22,15 @@ const config = {
     path: path.resolve(__dirname, 'public', 'build'),
     publicPath: '/build/',
   },
-  plugins: []
-}
+  plugins: [],
+};
 
 if (isProduction) {
   config.plugins.push(
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
+        NODE_ENV: JSON.stringify('production'),
+      },
     }),
 
     new webpack.NoErrorsPlugin(),
@@ -39,17 +39,17 @@ if (isProduction) {
 
     new webpack.optimize.UglifyJsPlugin(),
 
-    new webpack.optimize.OccurenceOrderPlugin(true)
-    
+    new webpack.optimize.OccurenceOrderPlugin(true),
+
   );
 } else {
   config.entry.unshift(
     // For hot style updates
     'webpack/hot/dev-server',
-    'webpack-dev-server/client?http://localhost:3000'
+    'webpack-dev-server/client?http://localhost:3000',
   );
   config.plugins.push(
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
   );
 }
 

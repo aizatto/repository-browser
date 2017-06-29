@@ -1,4 +1,4 @@
-"use strict";
+
 
 import React from 'react';
 
@@ -14,7 +14,7 @@ export default class JsonRenderer extends React.Component {
     let config = null;
     try {
       config = JSON.parse(this.props.json);
-    } catch (e) {
+    } catch (e) { // eslint-disable-line
     }
 
     this.state = {
@@ -38,25 +38,24 @@ export default class JsonRenderer extends React.Component {
     );
   }
 
-  renderTable(name, fn_key, fn_value, options = {}) {
-    let values = this.state.config[name];
+  renderTable(name, fnKey, fnValue, options = {}) {
+    const values = this.state.config[name];
     if (!values) {
-      return;
+      return null;
     }
 
     const keys = Object.keys(values);
     if (options.sort) {
       keys.sort();
-    };
+    }
 
-    const rows = [];
-    for (const key of keys) {
+    const rows = keys.map((key) => {
       const value = values[key];
 
-      const key2 = fn_key ? fn_key(key) : key;
-      const value2 = fn_value ? fn_value(value) : value;
+      const key2 = fnKey ? fnKey(key) : key;
+      const value2 = fnValue ? fnValue(value) : value;
 
-      rows.push(
+      return (
         <tr key={key}>
           <td>
             {key2}
@@ -64,7 +63,7 @@ export default class JsonRenderer extends React.Component {
           <td>{value2}</td>
         </tr>
       );
-    }
+    });
 
     return (
       <div>

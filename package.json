@@ -8,10 +8,10 @@
     "start": "./node_modules/.bin/babel-node ./server.js",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "heroku-postbuild": "webpack -p --config webpack.config.js"
+    "heroku-postbuild": "babel-node ./node_modules/.bin/webpack -- -p --config webpack.config.js"
   },
   "dependencies": {
-    "aizatto": "git+ssh://git@github.com:aizatto/nodejs.git",
+    "aizatto": "https://github.com/aizatto/nodejs.git#master",
     "axios": "^0.15.3",
     "babel-cli": "^6.22.2",
     "babel-core": "^6.22.1",
@@ -45,6 +45,6 @@
     "json-loader": "^0.5.4"
   },
   "engines": {
-    "node": "7.x"
+    "node": "8.x"
   }
 }

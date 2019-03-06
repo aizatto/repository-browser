@@ -1,119 +1,107 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Tabs, Tab } from 'aizatto/lib/react/bootstrap';
 import PackageJsonRenderer from './PackageJsonRenderer';
 import ComposerDotJsonRenderer from './ComposerDotJsonRenderer';
+import { groupBy } from 'lodash';
 
 const queryString = require('query-string');
 const urlParser = require('url');
-const xhr = require('xhr');
-const HttpStatus = require('http-status-codes');
 
-const State = {
-  NONE: 'none',
-  FETCHING: 'fetching',
-  SUCCESS: 'success',
-};
-
-interface Props {
-
+enum Status {
+  SUCCESS,
+  ERROR,
 }
 
-interface UriFieldState {
-  uri: string;
-  state: string;
-  [files: string]: any
-}
+function RenderExamples(props: { inputRef: any }) {
+  const { inputRef } = props;
+  const uris = [
+    'https://github.com/kobotoolbox/kpi',
+  ].map((uri) => {
+    const onClick = (event: React.MouseEvent<HTMLElement>) => {
+      event.preventDefault();
+      if (!inputRef ||
+          !inputRef.current) {
+        return;
+      }
 
-interface StateFiles {
-  [index:string]: {
-    file: string;
-    uri: string;
-    error: null;
-    response: null;
-    body: null;
-    fn: any;
-  }
-};
+      inputRef.current.value = uri;
+    }
 
-export default class UriField extends React.Component<Props, UriFieldState> {
-
-  input: any = null;
-
-  constructor(props: Props) {
-    super(props);
-    // eslint-disable-next-line no-undef
-    const parsed = queryString.parse(location.search);
-    this.state = {
-      uri: parsed.uri,
-      state: State.NONE,
-      files: {},
-    };
-  }
-
-  componentDidMount() {
-  }
-
-  render() {
     return (
-      <div>
-        GitHub Repo:
-        <input
-          ref={(input) => { this.input = input; }}
-          type="text"
-          defaultValue={this.state.uri}
-        />
-        <input type="submit" value="submit" onClick={() => this.onChange()} />
-        <ul>
-          <li>Does not work with private repositories</li>
-        </ul>
-        {this.renderExamples()}
-        {this.renderSucces()}
-      </div>
+      <li key={uri}>
+        <a href={uri} onClick={onClick}>{uri}</a>
+      </li>
     );
-  }
+  });
 
-  renderExamples() {
-    const uris = [
-      'https://github.com/kobotoolbox/kpi',
-    ].map((uri) => {
-      const onclick = (event: React.MouseEvent<HTMLElement>) => {
-        event.preventDefault();
-        this.input.value = uri;
-        this.onChange();
-      };
+  return (
+    <div>
+      <strong>Example</strong>
+      <ul>
+        {uris}
+      </ul>
+    </div>
+  );
+}
 
+interface FileConfig {
+  name: string,
+  uri: string,
+  body: string,
+  status: Status,
+}
+
+function forEachGroup(group: FileConfig[], fn: (file:FileConfig) => void) {
+  const sortedGroup = group.sort((a, b) => a.name.localeCompare(b.name))
+  sortedGroup.map((file) => fn(file));
+}
+
+function RenderFile(props: {file:FileConfig}): JSX.Element {
+  const file = props.file;
+  switch (file.name) {
+    case 'composer.json': 
       return (
-        <li key={uri}>
-          <a href={uri} onClick={onclick}>{uri}</a>
-        </li>
+        <>
+          <h2>composer.json</h2>
+          <ComposerDotJsonRenderer json={file.body} />
+        </>
       );
-    });
 
-    return (
-      <div>
-        <strong>Example</strong>
-        <ul>
-          {uris}
-        </ul>
-      </div>
-    );
+    case 'package.json':
+      return (
+        <>
+          <h2>package.json</h2>
+          <PackageJsonRenderer json={file.body} />
+        </>
+      );
+
+    default:
+      return <div><pre>{file.body}</pre></div>;
   }
+}
 
-  onChange() {
-    if (!this.input) {
+function RenderSuccess(props: {uri?: string | null }) {
+  const defaultFile: FileConfig[] = [];
+  const [files, setFiles] = useState(defaultFile);
+
+  const { uri } = props;
+
+  const fetchFiles = async () => {
+    if (!uri) {
       return;
     }
 
-    const uri = urlParser.parse(this.input.value);
-    if (!(uri.protocol === 'http:' || uri.protocol === 'https:')) {
+    const parsedUri = urlParser.parse(uri);
+    if (!(parsedUri.protocol === 'http:' ||
+          parsedUri.protocol === 'https:')) {
       return;
     }
 
-    if (uri.host !== 'github.com') {
+    if (parsedUri.host !== 'github.com') {
       return;
     }
 
-    const regex = /(\w+)\/(\w+)/.exec(uri.pathname);
+    const regex = /(\w+)\/([^\/]+)/.exec(parsedUri.pathname);
 
     if (regex === null) {
       return;
@@ -122,168 +110,131 @@ export default class UriField extends React.Component<Props, UriFieldState> {
     const user = regex[1];
     const repo = regex[2];
 
-    // investigate URL
-    // https://github.com/kobotoolbox/kpi
-    //
-    // transform into
-    //
-    // https://github.com/kobotoolbox/kpi/blob/master/
-    //
-    // find
-    //
-    //
-    // https://github.com/kobotoolbox/kpi/blob/master/package.json
-    // https://github.com/kobotoolbox/kpi/blob/master/requirements.in
-    // https://github.com/kobotoolbox/kpi/blob/master/.babelrc
-    // https://github.com/kobotoolbox/kpi/blob/master/Dockerfile
-    // https://github.com/kobotoolbox/kpi/blob/master/Gemfile
-    // https://raw.githubusercontent.com/graphql/express-graphql/master/package.json
-    // https://github.com/symfony/symfony/blob/master/composer.json
-    //
-    const output = (body: string) => <div><pre>{body}</pre></div>;
+    const root = `https://raw.githubusercontent.com/${user}/${repo}/master/`;
+    const files = [
+      '.bowerrc',
+      '.dockerignore',
+      '.eslintrc',
+      '.gitignore',
+      '.gitmodules',
+      'Dockerfile',
+      'README.md',
+      'composer.json',
+      'package.json',
+      'requirements.in',
+      'tsconfig.json',
+    ];
 
-    const files = {
-      'package.json': (body: string) => (
-        <div>
-          <h2>package.json</h2>
-          <PackageJsonRenderer json={body} />
-        </div>
-        ),
-      'composer.json': (body: string) => (
-        <div>
-          <h2>composer.json</h2>
-          <ComposerDotJsonRenderer json={body} />
-        </div>
-        ),
-      Dockerfile: output,
-      '.dockerignore': output,
-      '.eslintrc': output,
-      '.bowerrc': output,
-      '.gitignore': output,
-      '.gitmodules': output,
-      'requirements.in': output,
-    };
-
-    const raw = `https://raw.githubusercontent.com/${user}/${repo}/master/`;
-
-    const stateFiles: StateFiles = {};
-    Object.entries(files).forEach(([file, fn]) => {
-      const fileUri = `${raw}${file}`;
-      stateFiles[file] = {
-        file,
-        uri: fileUri,
-        error: null,
-        response: null,
-        body: null,
-        fn,
-      };
-    });
-
-    this.setState({
-      uri: this.input.value,
-      state: State.FETCHING,
-      files: stateFiles,
-    }, () => {
-      Object.keys(files).forEach((file) => {
-        const fileUri = `${raw}${file}`;
-        xhr.get(fileUri, (error: string, response: string, body: string) => {
-          const sF = this.state.files;
-          sF[file].error = error;
-          sF[file].response = response;
-          sF[file].body = body;
-
-          this.setStateFiles(stateFiles);
+    let state:FileConfig[] = [];
+    const promises = files.map(async (file) => {
+      const fileUri = `${root}${file}`;
+        const response = await fetch(fileUri);
+        const body = await response.text();
+        state.push({
+          name: file,
+          uri: fileUri,
+          body,
+          status: response.ok ? Status.SUCCESS : Status.ERROR,
         });
-      });
     });
+
+    await Promise.all(promises);
+    setFiles(state);
   }
 
-  setStateFiles(stateFiles: StateFiles) {
-    const state = {
-      stateFiles,
-    };
+  useEffect(() => { fetchFiles() }, [uri]);
 
-    this.setState(state);
-  }
+  const html: JSX.Element[] = [];
+  const tabs: JSX.Element[] = [];
 
-  renderSucces() {
-    if (this.state.state !== State.FETCHING) {
-      return null;
-    }
-
-    const files = this.state.files;
-
-    const html: JSX.Element[] = [];
-    const tabs = Object.keys(files).map((key) => {
-      const file = files[key];
-
-      let body: any = null;
-      let status: any = null;
-
-      if (file.error) {
-        const error = file.error;
-        body = error.stack
-          ? <pre>{error.stack}</pre>
-          : error.toString();
-
-        body = (
-          <div>
-            <a href={file.url}>{file.uri}</a>
-            {body}
-          </div>
-        );
-        status = 'Error';
-      } else if (file.response) {
-        body = file.fn
-          ? file.fn(file.body)
-          : <pre>file.body</pre>;
-        status = HttpStatus.getStatusText(file.response.statusCode);
-      } else {
-        body = <code>Loading...</code>;
-        status = 'Loading';
-      }
-
+  const groups = groupBy(files, 'status');
+  if (groups[Status.SUCCESS]) {
+    forEachGroup(groups[Status.SUCCESS], (file) => {
       html.push(
-        <li key={file.file}>
-          <a href={file.url}>{file.uri}</a>
-          {' '}
-          {status}
-        </li>,
+        <li key={file.name}>
+          <a href={file.uri}>{file.uri}</a>
+        </li>
       );
 
-      return (
+      tabs.push(
         <Tab
-          key={file.file}
-          eventKey={file.file}
-          title={file.file}
+          key={file.name}
+          eventKey={file.name}
+          title={file.name}
           render={() =>
             (<div>
               <div>
-                <a href={file.url} target="_blank">{file.uri}</a>
+                <a href={file.uri} target="_blank">{file.uri}</a>
               </div>
-              {body}
+              <RenderFile file={file} />
             </div>)
           }
         />
       );
     });
-
-    return (
-      <Tabs>
-        <Tab
-          eventKey="general"
-          title="General"
-          render={() =>
-            (<div>
-              <ul>
-                {html}
-              </ul>
-            </div>)
-          }
-        />
-        {tabs}
-      </Tabs>
-    );
   }
 
+  if (groups[Status.ERROR]) {
+    forEachGroup(groups[Status.ERROR], (file) => {
+      html.push(
+        <li key={file.name}>
+          {file.uri}
+        </li>
+      );
+
+      tabs.push(
+        <Tab
+          key={file.name}
+          eventKey={file.name}
+          title={file.name}
+        />
+      );
+    });
+  }
+
+  return (
+    <Tabs>
+      <Tab
+      eventKey="general"
+      title="General"
+      render={() =>
+        (<>
+            <ul>
+              {html}
+          </ul>
+          </>)
+      }
+      />
+      {tabs}
+    </Tabs>
+  );
+}
+
+export default function UriField() {
+  const [uri, setURI] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onClick = () => {
+    if (!inputRef ||
+        !inputRef.current) {
+      return;
+    }
+
+    setURI(inputRef.current.value);
+  }
+
+  return (
+    <div>
+      GitHub Repo:
+      <input
+        ref={inputRef}
+        type="text"
+      />
+      <input type="submit" value="submit" onClick={onClick} />
+      <ul>
+        <li>Does not work with private repositories</li>
+      </ul>
+      <RenderExamples inputRef={inputRef} />
+      <RenderSuccess uri={uri} />
+    </div>
+  );
 }

@@ -34,8 +34,6 @@ export default class PackageJsonRenderer extends JsonRenderer {
         {this.renderTable('bin', code, code, { sort: true })}
         {this.renderTable('options', code, code)}
         {this.renderTable('directories', code, code)}
-        {this.renderTable('repository')}
-        {this.renderTable('bugs')}
         <h3>File Contents</h3>
         <pre>{this.props.json}</pre>
         {this.renderYarnAdd()}
@@ -49,14 +47,18 @@ export default class PackageJsonRenderer extends JsonRenderer {
       <code>{value}</code>
       );
 
+    const url = (uri: string) => <a href={uri}>{uri}</a>;
+
     let stuff = [
       this.renderKeyStuff('name', code),
       this.renderKeyStuff('version'),
       this.renderKeyStuff('description'),
       this.renderKeyStuff('author'),
-      this.renderKeyStuff('homepage', uri => <a href={uri}>{uri}</a>),
+      this.renderKeyStuff('homepage', url),
       this.renderKeyStuff('license'),
       this.renderKeyStuff('main', code),
+      this.renderKeyStuff('repository', url),
+      this.renderKeyStuff('bugs', url),
     ];
 
     stuff = stuff.filter(value => value !== null);

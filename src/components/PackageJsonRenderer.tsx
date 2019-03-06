@@ -11,7 +11,7 @@ export default class PackageJsonRenderer extends JsonRenderer {
       );
     }
 
-    const depName = (name) => {
+    const depName = (name: string) => {
       const uri = `https://www.npmjs.com/package/${name}`;
       return (
         <a href={uri}>
@@ -20,7 +20,7 @@ export default class PackageJsonRenderer extends JsonRenderer {
       );
     };
 
-    const code = value => (
+    const code = (value: string) => (
       <code>{value}</code>
       );
 
@@ -45,7 +45,7 @@ export default class PackageJsonRenderer extends JsonRenderer {
   }
 
   renderStuff() {
-    const code = value => (
+    const code = (value: string) => (
       <code>{value}</code>
       );
 
@@ -87,7 +87,7 @@ export default class PackageJsonRenderer extends JsonRenderer {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  renderCommand(command, deps) {
+  renderCommand(command: string[], deps: any) {
     if (!deps || deps.length === 0) {
       return null;
     }
@@ -106,7 +106,7 @@ export default class PackageJsonRenderer extends JsonRenderer {
         style={{ cursor: 'pointer' }}
         onClick={() => clipboard(fullCommand)}
         role="button"
-        tabIndex="-1"
+        tabIndex={-1}
       >
         copy
       </small>

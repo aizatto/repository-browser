@@ -10,7 +10,7 @@ export default class ComposerDotJsonRenderer extends JsonRenderer {
       );
     }
 
-    const depName = (name) => {
+    const depName = (name: string) => {
       const uri = `https://packagist.org/packages/${name}/`;
       return (
         <a href={uri}>
@@ -19,11 +19,11 @@ export default class ComposerDotJsonRenderer extends JsonRenderer {
       );
     };
 
-    const code = value => (
+    const code = (value: string) => (
       <code>{value}</code>
       );
 
-    const arrayOrObject = (values) => {
+    const arrayOrObject = (values: any) => {
       if (typeof values === 'string') {
         return values;
       }
@@ -60,7 +60,7 @@ export default class ComposerDotJsonRenderer extends JsonRenderer {
   }
 
   renderStuff() {
-    const code = value => (
+    const code = (value: string) => (
       <code>{value}</code>
       );
 

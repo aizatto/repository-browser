@@ -14,9 +14,32 @@ const State = {
   SUCCESS: 'success',
 };
 
-export default class UriField extends React.Component {
+interface Props {
 
-  constructor(props) {
+}
+
+interface UriFieldState {
+  uri: string;
+  state: string;
+  [files: string]: any
+}
+
+interface StateFiles {
+  [index:string]: {
+    file: string;
+    uri: string;
+    error: null;
+    response: null;
+    body: null;
+    fn: any;
+  }
+};
+
+export default class UriField extends React.Component<Props, UriFieldState> {
+
+  input: any = null;
+
+  constructor(props: Props) {
     super(props);
     // eslint-disable-next-line no-undef
     const parsed = queryString.parse(location.search);
@@ -53,7 +76,7 @@ export default class UriField extends React.Component {
     const uris = [
       'https://github.com/kobotoolbox/kpi',
     ].map((uri) => {
-      const onclick = (event) => {
+      const onclick = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
         this.input.value = uri;
         this.onChange();
@@ -117,16 +140,16 @@ export default class UriField extends React.Component {
     // https://raw.githubusercontent.com/graphql/express-graphql/master/package.json
     // https://github.com/symfony/symfony/blob/master/composer.json
     //
-    const output = body => <div><pre>{body}</pre></div>;
+    const output = (body: string) => <div><pre>{body}</pre></div>;
 
     const files = {
-      'package.json': body => (
+      'package.json': (body: string) => (
         <div>
           <h2>package.json</h2>
           <PackageJsonRenderer json={body} />
         </div>
         ),
-      'composer.json': body => (
+      'composer.json': (body: string) => (
         <div>
           <h2>composer.json</h2>
           <ComposerDotJsonRenderer json={body} />
@@ -143,7 +166,7 @@ export default class UriField extends React.Component {
 
     const raw = `https://raw.githubusercontent.com/${user}/${repo}/master/`;
 
-    const stateFiles = {};
+    const stateFiles: StateFiles = {};
     Object.entries(files).forEach(([file, fn]) => {
       const fileUri = `${raw}${file}`;
       stateFiles[file] = {
@@ -163,7 +186,7 @@ export default class UriField extends React.Component {
     }, () => {
       Object.keys(files).forEach((file) => {
         const fileUri = `${raw}${file}`;
-        xhr.get(fileUri, (error, response, body) => {
+        xhr.get(fileUri, (error: string, response: string, body: string) => {
           const sF = this.state.files;
           sF[file].error = error;
           sF[file].response = response;
@@ -175,17 +198,10 @@ export default class UriField extends React.Component {
     });
   }
 
-  setStateFiles(stateFiles) {
+  setStateFiles(stateFiles: StateFiles) {
     const state = {
       stateFiles,
     };
-
-    Object.values(stateFiles).forEach((file) => {
-      total += 1;
-      if (file.response || file.error) {
-        i += 1;
-      }
-    });
 
     this.setState(state);
   }
@@ -197,12 +213,12 @@ export default class UriField extends React.Component {
 
     const files = this.state.files;
 
-    const html = [];
+    const html: JSX.Element[] = [];
     const tabs = Object.keys(files).map((key) => {
       const file = files[key];
 
-      let body = null;
-      let status = null;
+      let body: any = null;
+      let status: any = null;
 
       if (file.error) {
         const error = file.error;

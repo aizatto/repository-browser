@@ -7,14 +7,26 @@ const State = {
   EXCEPTION: 'excetpion',
 };
 
-export default class Textarea extends React.Component {
+interface Props {
+  ok?: any;
+}
 
-  constructor(props) {
+interface TextareaState {
+  exception: any;
+  json: null | string;
+  state: string;
+}
+
+export default class Textarea extends React.Component<Props, TextareaState> {
+
+  textarea: any = null;
+
+  constructor(props: Props) {
     super(props);
     this.state = {
       exception: null,
       json: null,
-      state: State.none,
+      state: State.NONE,
     };
   }
 

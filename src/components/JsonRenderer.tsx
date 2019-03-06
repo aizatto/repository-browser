@@ -1,20 +1,28 @@
-
-
 import React from 'react';
 
-export default class JsonRenderer extends React.Component {
+interface Props {
+  json: null | string,
+}
 
-  static propTypes = {
-    json: React.PropTypes.string.isRequired,
-  }
+interface State {
+  [config: string]: any;
+}
 
-  constructor(props) {
+interface Options {
+  sort?: boolean,
+}
+
+export default class JsonRenderer extends React.Component<Props, State> {
+
+  constructor(props: Props) {
     super(props);
 
     let config = null;
-    try {
-      config = JSON.parse(this.props.json);
-    } catch (e) { // eslint-disable-line
+    if (this.props.json) {
+      try {
+        config = JSON.parse(this.props.json);
+      } catch (e) { // eslint-disable-line
+      }
     }
 
     this.state = {
@@ -22,7 +30,10 @@ export default class JsonRenderer extends React.Component {
     };
   }
 
-  renderKeyStuff(key, fn) {
+  renderKeyStuff(
+    key: string,
+    fn: (value: any) => any = () => null,
+  ) {
     if (!this.state.config[key]) {
       return null;
     }
@@ -38,7 +49,12 @@ export default class JsonRenderer extends React.Component {
     );
   }
 
-  renderTable(name, fnKey, fnValue, options = {}) {
+  renderTable(
+    name: string,
+    fnKey: (key: string) => any = () => null,
+    fnValue: (values: any) => any = () => null,
+    options: Options = {},
+  ) {
     const values = this.state.config[name];
     if (!values) {
       return null;

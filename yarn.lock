@@ -1197,7 +1197,7 @@ address@1.0.3, address@^1.0.1:
 
 "aizatto@https://github.com/aizatto/nodejs.git#master":
   version "0.1.0"
-  resolved "https://github.com/aizatto/nodejs.git#f3f63a51d49bfe3bb125e1535ddda9aa4ef86a4e"
+  resolved "https://github.com/aizatto/nodejs.git#7eb57654d2312500a3c98efd201c91a0bf8390bd"
   dependencies:
     classnames "^2.2.5"
     path-to-regexp "^3.0.0"
@@ -3370,10 +3370,6 @@ eslint-config-airbnb@^17.1.0:
     eslint-config-airbnb-base "^13.1.0"
     object.assign "^4.1.0"
     object.entries "^1.0.4"
-
-"eslint-config-aizatto@git+ssh://git@github.com:aizatto/eslint-config-aizatto.git#v0.0.1":
-  version "0.0.1"
-  resolved "git+ssh://git@github.com:aizatto/eslint-config-aizatto.git#2c7d337cedbd1af660c4588896485b5c4c21cfb2"
 
 eslint-config-prettier@^4.1.0:
   version "4.1.0"

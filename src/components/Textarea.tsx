@@ -117,7 +117,13 @@ export default class Textarea extends React.Component<Props, TextareaState> {
 
     const error = e.stack
       ? <pre>{e.stack}</pre>
-      : <span>{e.name} {e.message}</span>;
+      : (
+        <span>
+          {e.name} 
+          {' '}
+          {e.message}
+        </span>
+);
 
     return (
       <div>

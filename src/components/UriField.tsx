@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Tabs, Tab } from 'aizatto/lib/react/bootstrap';
+import { groupBy } from 'lodash';
 import PackageJsonRenderer from './PackageJsonRenderer';
 import ComposerDotJsonRenderer from './ComposerDotJsonRenderer';
-import { groupBy } from 'lodash';
 
 const queryString = require('query-string');
 const urlParser = require('url');
@@ -125,7 +125,7 @@ function RenderSuccess(props: {uri?: string | null }) {
       'tsconfig.json',
     ];
 
-    let state:FileConfig[] = [];
+    const state:FileConfig[] = [];
     const promises = files.map(async (file) => {
       const fileUri = `${root}${file}`;
         const response = await fetch(fileUri);
@@ -162,12 +162,14 @@ function RenderSuccess(props: {uri?: string | null }) {
           eventKey={file.name}
           title={file.name}
           render={() =>
-            (<div>
+            (
               <div>
-                <a href={file.uri} target="_blank">{file.uri}</a>
+                <div>
+                  <a href={file.uri} target="_blank">{file.uri}</a>
+                </div>
+                <RenderFile file={file} />
               </div>
-              <RenderFile file={file} />
-            </div>)
+)
           }
         />
       );
@@ -195,14 +197,16 @@ function RenderSuccess(props: {uri?: string | null }) {
   return (
     <Tabs>
       <Tab
-      eventKey="general"
-      title="General"
-      render={() =>
-        (<>
+        eventKey="general"
+        title="General"
+        render={() =>
+        (
+          <>
             <ul>
               {html}
-          </ul>
-          </>)
+            </ul>
+          </>
+)
       }
       />
       {tabs}

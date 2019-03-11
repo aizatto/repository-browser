@@ -116,7 +116,11 @@ export default class PackageJsonRenderer extends JsonRenderer {
 
     return (
       <div>
-        <h4>{command.join(' ')}{' '}{copy}</h4>
+        <h4>
+          {command.join(' ')}
+          {' '}
+          {copy}
+        </h4>
         <pre>{fullCommand}</pre>
       </div>
     );

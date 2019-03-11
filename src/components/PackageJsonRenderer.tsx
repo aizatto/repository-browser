@@ -27,9 +27,9 @@ export default class PackageJsonRenderer extends JsonRenderer {
     return (
       <div>
         {this.renderStuff()}
-        {this.renderTable('dependencies', depName)}
-        {this.renderTable('devDependencies', depName)}
-        {this.renderTable('peerDependencies', depName)}
+        {this.renderTable('dependencies', depName, code)}
+        {this.renderTable('devDependencies', depName, code)}
+        {this.renderTable('peerDependencies', depName, code)}
         {this.renderTable('scripts', code, code, { sort: true })}
         {this.renderTable('bin', code, code, { sort: true })}
         {this.renderTable('options', code, code)}

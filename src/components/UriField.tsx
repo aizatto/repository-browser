@@ -15,6 +15,7 @@ enum Status {
 function RenderExamples(props: { inputRef: any }) {
   const { inputRef } = props;
   const uris = [
+    'https://github.com/facebook/create-react-app/',
     'https://github.com/kobotoolbox/kpi',
   ].map((uri) => {
     const onClick = (event: React.MouseEvent<HTMLElement>) => {

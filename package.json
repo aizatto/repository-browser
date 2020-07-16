@@ -10,7 +10,7 @@
     "@types/react-dom": "16.8.2",
     "aizatto": "https://github.com/aizatto/nodejs.git#master",
     "copy-to-clipboard": "^3.0.8",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "query-string": "^6.3.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
